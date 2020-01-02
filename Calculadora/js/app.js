@@ -8,6 +8,7 @@ var Calculadora = {
 	nUltimoValor: 0,
 	nResultado: 0,
 	lObtenerResultado: false,
+	lOperacionSelecionada: false,
 	
 	init: (function(){
 		this.fnCreateOnMouseEvent(".tecla");
@@ -64,11 +65,11 @@ var Calculadora = {
 		var oTeclas = document.querySelectorAll('.tecla');
 		for(var x=0; x<oTeclas.length; x++){
 			if(!isNaN(parseInt(oTeclas[x].id)))
-				document.getElementById(oTeclas[x].id).addEventListener("click", function(e) { Calculadora.ingresoNumero(e.target.id); } );
+				document.getElementById(oTeclas[x].id).addEventListener("click", function(e) { Calculadora.fnCapturaNumero(e.target.id); } );
 		}
 		
 		document.getElementById("on").addEventListener("click", function() { Calculadora.fnCleanDisplay(); });
-		document.getElementById("sign").addEventListener("click", function() { Calculadora.fnCambiaOperacion(); });
+		document.getElementById("sign").addEventListener("click", function() { Calculadora.fnABS(); });
 		document.getElementById("punto").addEventListener("click", function() { Calculadora.fnPuntoDecimal(); });
 		document.getElementById("igual").addEventListener("click", function() { Calculadora.fnGenerarResultado(); });
 		document.getElementById("raiz").addEventListener("click", function() { Calculadora.fnTipoOperacion("raiz"); });
@@ -90,7 +91,7 @@ var Calculadora = {
 		this.fnActualizaDisplay();
 	},
 	
-	fnCambiaOperacion: function(){
+	fnABS: function(){
 		if (this.aValorOnDisplay !="0") {
 			var aux;
 			if (this.aValorOnDisplay.charAt(0)=="-") {
@@ -115,7 +116,7 @@ var Calculadora = {
 		}
 	},
 	
-	ingresoNumero: function(valor){
+	fnCapturaNumero: function(valor){
 		if (this.aValorOnDisplay.length < 8) {
 			if (this.aValorOnDisplay=="0") {
 				this.aValorOnDisplay = "";
@@ -124,17 +125,28 @@ var Calculadora = {
 				this.aValorOnDisplay = this.aValorOnDisplay + valor;
 			}
 			this.fnActualizaDisplay();
+			if(this.lOperacionSelecionada)
+				this.lOperacionSelecionada = false;
 		}
 	},
 	
 	fnTipoOperacion: function(tOperacion){
-		this.nPrimerValor = parseFloat(this.aValorOnDisplay);
+		if(!this.lOperacionSelecionada){
+			if(this.nPrimerValor == 0){
+				this.nPrimerValor = parseFloat(this.aValorOnDisplay);
+			}
+			else{
+				this.fnCalculaOperacion(this.nPrimerValor, parseFloat(this.aValorOnDisplay), this.aTipoOperacion);
+				this.nPrimerValor = this.nResultado;
+			}
+		}
 		if(tOperacion != "raiz")
 			this.aValorOnDisplay = "";
 		else
 			this.aValorOnDisplay = "√"+this.aValorOnDisplay.replace("√", "");
 		this.aTipoOperacion = tOperacion;
 		this.lObtenerResultado = false;
+		this.lOperacionSelecionada = true;
 		this.fnActualizaDisplay();
 	},
 	
@@ -157,9 +169,9 @@ var Calculadora = {
 			this.aValorOnDisplay = this.nResultado.toString().slice(0,8) + "...";
 		}
 	
-		this.lObtenerResultado = true;		
-		this.fnActualizaDisplay();
-	
+		this.lObtenerResultado = true;
+		this.lOperacionSelecionada = false;
+		this.fnActualizaDisplay();	
 	},
 	
 	fnCalculaOperacion: function(nPrimerValor, nSegundoValor, aTipoOperacion){
