@@ -118,9 +118,14 @@ var Calculadora = {
 	
 	fnCapturaNumero: function(valor){
 		if (this.aValorOnDisplay.length < 8) {
-			if (this.aValorOnDisplay=="0") {
+			if (this.aValorOnDisplay=="0" || this.lObtenerResultado) {
 				this.aValorOnDisplay = "";
 				this.aValorOnDisplay = this.aValorOnDisplay + valor;
+				if(this.lObtenerResultado){
+					this.nPrimerValor = 0;
+					this.nResultado = 0;
+					this.lObtenerResultado = false;
+				}
 			} else {
 				this.aValorOnDisplay = this.aValorOnDisplay + valor;
 			}
